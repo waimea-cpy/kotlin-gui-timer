@@ -1,15 +1,16 @@
 /**
  * ===============================================================
- * Kotlin GUI Starter
+ * Kotlin GUI Timer Demo
  * ===============================================================
  *
- * This is a starter project for a simple Kotlin GUI application.
- * The Java Swing library is used, plus the FlatLAF look-and-feel
- * for a reasonably modern look.
+ * This is a demo of how to create and use a timer in a Kotlin /
+ * Swing application.
  *
- * The app is structured to provide a simple view / model setup
- * with the App class storing application data (the 'model'), and
- * the MainWindow class providing the 'view'.
+ * Timers can be used to trigger events on a regular basis, after
+ * a certain time has elapsed, etc.
+ *
+ * Timers can be started / stopped in your code, and can be
+ * checked to see if they are running or not.
  */
 
 import com.formdev.flatlaf.FlatDarkLaf
@@ -34,16 +35,12 @@ fun main() {
  * stored, plus any application logic functions
  */
 class App() {
-    // Constants defining any key values
-    val MAX_CLICKS = 10
-
     // Data fields
-    var clicks = 0
+    var message = "TICK"
 
     // Application logic functions
-    fun updateClickCount() {
-        clicks++
-        if (clicks > MAX_CLICKS) clicks = MAX_CLICKS
+    fun updateMessage() {
+        message = if (message == "TICK") "TOCK" else "TICK"
     }
 }
 
@@ -56,8 +53,11 @@ class App() {
 class MainWindow(val app: App) : JFrame(), ActionListener {
 
     // Fields to hold the UI elements
-    private lateinit var greetingLabel: JLabel
-    private lateinit var helloButton: JButton
+    private lateinit var infoLabel: JLabel
+    private lateinit var timerButton: JButton
+
+    // Timer
+    private lateinit var demoTimer: Timer
 
     /**
      * Configure the UI and display it
@@ -68,6 +68,10 @@ class MainWindow(val app: App) : JFrame(), ActionListener {
 
         setLocationRelativeTo(null)     // Centre the window
         isVisible = true                // Make it visible
+
+        demoTimer.start()               // For this demo, let's start the timer immediately
+
+        updateView()                    // Initialise view with model data
     }
 
     /**
@@ -75,7 +79,7 @@ class MainWindow(val app: App) : JFrame(), ActionListener {
      */
     private fun configureWindow() {
         title = "Kotlin Swing GUI Demo"
-        contentPane.preferredSize = Dimension(600, 350)
+        contentPane.preferredSize = Dimension(250, 175)
         defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         isResizable = false
         layout = null
@@ -87,19 +91,23 @@ class MainWindow(val app: App) : JFrame(), ActionListener {
      * Populate the UI with UI controls
      */
     private fun addControls() {
-        val baseFont = Font(Font.SANS_SERIF, Font.PLAIN, 36)
+        val baseFont = Font(Font.SANS_SERIF, Font.PLAIN, 24)
 
-        greetingLabel = JLabel("Hello, World!")
-        greetingLabel.horizontalAlignment = SwingConstants.CENTER
-        greetingLabel.bounds = Rectangle(50, 50, 500, 100)
-        greetingLabel.font = baseFont
-        add(greetingLabel)
+        // Timer will trigger every 500ms (0.5s, or 2 times a second)
+        // and the event will be handled by the main window
+        demoTimer = Timer(500, this)
 
-        helloButton = JButton("Click Me!")
-        helloButton.bounds = Rectangle(50,200,500,100)
-        helloButton.font = baseFont
-        helloButton.addActionListener(this)     // Handle any clicks
-        add(helloButton)
+        infoLabel = JLabel("INFO")
+        infoLabel.horizontalAlignment = SwingConstants.CENTER
+        infoLabel.bounds = Rectangle(25, 25, 200, 50)
+        infoLabel.font = baseFont
+        add(infoLabel)
+
+        timerButton = JButton("PAUSE / RESUME")
+        timerButton.bounds = Rectangle(25, 100, 200, 50)
+        timerButton.font = baseFont
+        timerButton.addActionListener(this)     // Handle any clicks
+        add(timerButton)
     }
 
 
@@ -108,13 +116,9 @@ class MainWindow(val app: App) : JFrame(), ActionListener {
      * of the application model
      */
     fun updateView() {
-        if (app.clicks == app.MAX_CLICKS) {
-            greetingLabel.text = "Max clicks reached!"
-            helloButton.isEnabled = false
-        }
-        else {
-            greetingLabel.text = "You clicked ${app.clicks} times"
-        }
+        infoLabel.text = app.message
+
+        timerButton.text = if (demoTimer.isRunning) "Pause" else "Resume"
     }
 
     /**
@@ -124,12 +128,22 @@ class MainWindow(val app: App) : JFrame(), ActionListener {
      */
     override fun actionPerformed(e: ActionEvent?) {
         when (e?.source) {
-            helloButton -> {
-                app.updateClickCount()
+            timerButton -> {
+                // Toggle the timer run/stop
+                if (demoTimer.isRunning) demoTimer.stop()
+                else demoTimer.start()
+                // Update the view to match
+                updateView()
+            }
+
+            demoTimer -> {
+                println("Timer went off!")
+                // Ask the app to update its status
+                app.updateMessage()
+                // Show the updated state
                 updateView()
             }
         }
     }
-
 }
 

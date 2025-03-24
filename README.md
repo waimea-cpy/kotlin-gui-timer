@@ -1,8 +1,10 @@
-# Kotlin GUI Starter
+# Kotlin GUI Timer Demo
 
-This is a starter project for a simple Kotlin GUI application.
+This is a demo of how to create and use a timer in a Kotlin / Swing application. 
 
-The Java Swing library is used, plus the FlatLAF look-and-feel for a reasonably modern look.
+Timers can be used to trigger events on a regular basis, after a certain time has elapsed, etc. 
 
-The app is structured to provide a simple view / model setup with the App class storing application data (the 'model'), and the MainWindow class providing the 'view'.
+Timers can be started / stopped in your code, and can be checked to see if they are running or not.
+
+![demo.gif](demo.gif)
 
